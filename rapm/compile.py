@@ -139,7 +139,7 @@ def main():
         with open(pathname, "r") as f:
             print(pathname)
             id = pathname.replace(".csv", "").split("/")[-1]
-            if id in ["0032100001", "0032200006", "0032200005", "0032200001"]: # All Star competitions
+            if id in ["0032100001", "0032200006", "0032200005", "0032200001", "0032200004", "0032000001"]: # All Star competitions
                 continue
             players = get_players(f)
             plays = get_plays(f)
