@@ -11,7 +11,10 @@ from termcolor import colored, cprint
 from pathlib import Path
 import time
 
-""" Parse skeds.txt and get the game summaries for all seasons and dates """
+"""
+Parse skeds.txt and get the game summaries for all seasons and dates
+Write to files by date then concat to games.csv
+"""
 
 base_dir = "/home/dmc7z/nba-stats"
 games_dir = f"{base_dir}/data/games"
@@ -32,6 +35,13 @@ def get_dates(date_from, date_to):
     return dates
 
 def main():
+
+    # Confirm to overwrite games.csv if it exists
+    if Path(f"{games_dir}/games.csv").is_file():
+        ans = input("Continue and overwrite games.csv? ")
+        if ans != "y":
+            sys.exit()
+
     # Get the seasons and their dates
     seasons = {}
     with open(f"{base_dir}/skeds.txt", "r") as f:
