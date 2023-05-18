@@ -1,5 +1,7 @@
 import sys
 import glob
+import re
+import io
 import pprint
 pp = pprint.PrettyPrinter(indent=2, compact=True)
 
@@ -134,17 +136,19 @@ def set_lineups(plays, players):
     
 
 def main():
-    for pathname in glob.glob(f"{game_dir}/*.csv"):
-        print(pathname)
-        with open(pathname, "r") as f:
-            print(pathname)
-            id = pathname.replace(".csv", "").split("/")[-1]
-            if id in ["0032100001", "0032200006", "0032200005", "0032200001", "0032200004", "0032000001"]: # All Star competitions
-                continue
-            players = get_players(f)
-            plays = get_plays(f)
-            plays = set_lineups(plays, players)
-            
+    def parse(string):
+        f = io.StringIO(string)
+        players = get_players(f)
+        plays = get_plays(f)
+        plays = set_lineups(plays, players)
+    with open(f"{game_dir}/game.csv", "r") as f:
+        string = ""
+        for line in f:
+            if string and re.match("\d{10}", line):
+                parse(string)
+                string = ""
+            string += line
+        parse(string)
             
 if __name__ == "__main__":
     main()

@@ -9,6 +9,7 @@ import pprint
 pp = pprint.PrettyPrinter(indent=2, compact=True)
 from termcolor import colored, cprint
 import helper
+import shutil
 
 """ 
 Get the games from /data/games/ and download and parse the box scores
@@ -38,7 +39,7 @@ def main():
             games.append({ "date": date, "id": id, "away": away, "home": home })
     players = {}
     for game in games:
-        if game["id"] in ["0032100004", "0032100005", "0032100006"]:  # Special all-star events
+        if game["id"] in helper.special_games:
             continue
         url = f"https://www.nba.com/game/foo-vs-bar-{game['id']}/box-score#box-score"
         pathname = f"{game_dir}/{game['id']}.csv"
@@ -98,6 +99,21 @@ def main():
                 for line in lines:
                     f.write(f"{line}\n")
             time.sleep(0.25)
+
+    # Concat all the files and delete the game files
+    outpathname = f"{game_dir}/game.csv"
+    with open(outpathname, "w") as outfile:
+        for pathname in sorted(glob.glob(f"{game_dir}/*.csv")):
+            id = pathname.replace(".csv", "").split("/")[-1]
+            if id in helper.special_games:
+                continue
+            if pathname == outpathname:
+                continue
+            with open(pathname, "r") as infile:
+                shutil.copyfileobj(infile, outfile)
+        for pathname in glob.glob(f"{game_dir}/*.csv"):
+            if pathname != outpathname:
+                Path(pathname).unlink()
                 
 if __name__ == "__main__":
     main()

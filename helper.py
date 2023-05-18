@@ -2,6 +2,8 @@ import re
 
 action = ["clock", "period", "teamTricode", "personId", "playerName", "xLegacy", "yLegacy", "shotDistance", "shotResult", "isFieldGoal", "scoreHome", "scoreAway", "description", "actionType", "subType"]
 
+special_games = ["0032100004", "0032100005", "0032100006", "0032000001", "0032200001", "0032200004", "0032200005", "0032200006", "0032100001"]
+
 def get_tricode(name):
     teams = {
       "warriors": "GSW", "lakers"  : "LAL", "celtics": "BOS", "heat"        : "MIA", "pistons"  : "DET",
