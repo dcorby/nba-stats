@@ -2,3 +2,8 @@ https://www.nba.com/games?date=2021-04-14
 https://www.nba.com/game/det-vs-was-0022201028/play-by-play?period=All
 https://www.nba.com/game/phx-vs-cha-0022200933/box-score#box-score
 
+Players are identifiable by last name in the play-by-play, and will have a first initial when necessary:
+0022000026.csv:PT05M40.00S,1,IND,1627734,Sabonis,0,0,0,,0,,,SUB: J. Holiday FOR Sabonis,Substitution,
+0022000026.csv:PT02M33.00S,1,CHI,1628976,Carter Jr.,0,0,0,,0,,,SUB: Markkanen FOR Carter Jr.,Substitution,
+0022000026.csv:PT01M41.00S,1,IND,203933,Warren,0,0,0,,0,,,SUB: A. Holiday FOR Warren,Substitution,
+
