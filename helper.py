@@ -23,6 +23,10 @@ def get_other(play):
         return m.group(1)
     return None
 
+def get_subs(play):
+    m = re.search("SUB: (.*?) FOR (.*?)$", play["description"])
+    return m.group(2), m.group(1)
+
 def process_lineup(play):
     """ There will always be a sub after an ejection """
     if (play["actionType"].strip() in ["Timeout", "Instant Replay", "Ejection"] 

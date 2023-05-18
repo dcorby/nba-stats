@@ -96,42 +96,48 @@ def set_lineups(plays, players):
         raise Exception(f"Team not found ({tricode})")
 
     # Iterate through plays
-    #lineups = { "away": set(), "home": set() }
     for i, play in enumerate(plays):
-        print(play)
-        #print(play["actionType"], play["subType"], play["description"])
-        #print("\n")
-        play["lineups"] = { "away": set(), "home": set() }
         # Set the starting lineup
+        play["lineups"] = { "away": set(), "home": set() }
         if i == 0:
             for team in ["away", "home"]:
                 lineup = { k:v for (k,v) in players[team]["players"].items() if v["starter"] }.keys()
                 play["lineups"][team] = set(lineup)
         else:
-            # Handle period ends
-            if play["subType"] == "end":
-                play["lineups"][team] = set()
+            # Handle period starts
+            if play["subType"] == "start":
+                for team in ["away", "home"]:
+                    play["lineups"][team] = set()
             # Carry over from previous play
             else:
                 for team in ["away", "home"]:
                     play["lineups"][team] = plays[i-1]["lineups"][team]
                 # Handle subs
-
-            # Add the primary
-            if helper.process_lineup(play):
-                team = get_team(play["teamTricode"])
-                primary = play["personId"]
-                play["lineups"][team].add(primary)
-
-                # Add the other
-                other = helper.get_other(play)
-                if other:
-                    # Assume other players are on active team
-                    player = get_player(other, team)
+                if play["actionType"] == "Substitution":
+                    team = get_team(play["teamTricode"])
+                    remove, add = helper.get_subs(play)
+                    player = get_player(remove, team)
+                    if player in play["lineups"][team]:
+                        play["lineups"][team].remove(player)
+                    player = get_player(add, team)
                     play["lineups"][team].add(player)
+                else:
+                    # Add the primary
+                    if helper.process_lineup(play):
+                        team = get_team(play["teamTricode"])
+                        primary = play["personId"]
+                        play["lineups"][team].add(primary)
+
+                        # Add the other
+                        other = helper.get_other(play)
+                        if other:
+                            # Assume other players are on active team
+                            player = get_player(other, team)
+                            play["lineups"][team].add(player)
 
     # Iterate through plays in reverse
-
+    for i, play in enumerate(reversed(plays)):
+        
     
     
 
