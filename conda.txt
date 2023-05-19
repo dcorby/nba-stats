@@ -1,0 +1,32 @@
+source ~/anaconda3/bin/activate root
+anaconda-navigator
+
+jupyter notebook
+
+conda config --set auto_activate_base true|false
+
+kaggle competitions download -c digit-recognizer
+
+pip install p2j
+p2j prog.py
+
+# Use tensorflow
+conda create -n tf tensorflow
+conda activate tf
+
+# Clone base environment
+https://stackoverflow.com/questions/60067548/clone-base-environment-in-anaconda
+conda list --explicit > spec-file.txt
+conda create --name myenv --file spec-file.txt
+
+# Or, maybe?
+https://www.activestate.com/resources/quick-reads/how-to-manage-python-dependencies-with-conda/
+conda list -e > requirements.txt
+conda install -n <env_name> requirements.txt
+
+# List environments
+conda info --envs
+conda env list
+
+# Activate
+conda activate ts
