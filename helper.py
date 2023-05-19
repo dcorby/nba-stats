@@ -37,7 +37,7 @@ def is_poss(play, prev_play):
     # Identify defensive rebound from change in teamTricode
     if "rebound" in ldescription and play["teamTricode"] != prev_play["teamTricode"]:
         return 1
-    if "free throw" in ldescription and not ldescription.startswith("miss ") and not "technical" in ldescription:
+    if "free throw" in ldescription and not ldescription.startswith("miss ") and not "technical" in ldescription and not "1 of 1" in ldescription:
         m = re.search("(\d+) of (\d+)", ldescription)
         if m.group(1) == m.group(2):
             return 1
