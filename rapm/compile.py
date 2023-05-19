@@ -72,6 +72,7 @@ def get_plays(f):
     return plays
     
 def set_lineups(plays, players):
+    print("set_lineups")
     """ Compile the lineups """
     def get_player(name, team):
         found = []
@@ -98,7 +99,7 @@ def set_lineups(plays, players):
     # Iterate through plays
     for i, play in enumerate(plays):
         # Set the starting lineup
-        play["lineups"] = { "away": set(), "home": set() }
+        play["lineups"] = {}
         if i == 0:
             for team in ["away", "home"]:
                 lineup = { k:v for (k,v) in players[team]["players"].items() if v["starter"] }.keys()
@@ -108,10 +109,10 @@ def set_lineups(plays, players):
             if play["subType"] == "start":
                 for team in ["away", "home"]:
                     play["lineups"][team] = set()
-            # Carry over from previous play
             else:
+                # Carry over from previous play
                 for team in ["away", "home"]:
-                    play["lineups"][team] = plays[i-1]["lineups"][team]
+                    play["lineups"][team] = plays[i-1]["lineups"][team].copy()
                 # Handle subs
                 if play["actionType"] == "Substitution":
                     team = get_team(play["teamTricode"])
@@ -136,10 +137,31 @@ def set_lineups(plays, players):
                             play["lineups"][team].add(player)
 
     # Iterate through plays in reverse
-    for i, play in enumerate(reversed(plays)):
-        
-    
-    
+    for i, play in enumerate(reversed(plays), 1):
+        i = len(plays) - i
+        if i == len(plays) - 1:
+            continue
+        # Skip end of periods
+        if plays[i+1]["subType"] != "start":
+            for team in ["away", "home"]:
+                this = play["lineups"][team]
+                last = plays[i+1]["lineups"][team]
+                diff = last.difference(this)
+                for player in diff:
+                    play["lineups"][team].add(player)
+            # Handle subs
+            if plays[i+1]["actionType"] == "Substitution":
+                team = get_team(plays[i+1]["teamTricode"])
+                remove, add = helper.get_subs(plays[i+1])
+                player = get_player(remove, team)
+                play["lineups"][team].add(player)
+                player = get_player(add, team)
+                play["lineups"][team].remove(player)
+
+    # Summarize
+    for i, play in enumerate(plays):
+        print(i, play["period"], play["clock"], sorted(play["lineups"]["away"]), sorted(play["lineups"]["home"]))
+    sys.exit()
 
 def main():
     def parse(string):
