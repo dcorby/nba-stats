@@ -27,6 +27,24 @@ def get_subs(play):
     m = re.search("SUB: (.*?) FOR (.*?)$", play["description"])
     return m.group(2), m.group(1)
 
+def is_poss(play, prev_play):
+    """ Mark a possession at period end, turnover, defensive rebound, make final free throw, made field goal"""
+    ldescription = play["description"].lower()
+    if play["subType"] == "end":
+        return 1
+    if "turnover" in ldescription:
+        return 1
+    # Identify defensive rebound from change in teamTricode
+    if "rebound" in ldescription and play["teamTricode"] != prev_play["teamTricode"]:
+        return 1
+    if "free throw" in ldescription and not ldescription.startswith("miss ") and not "technical" in ldescription:
+        m = re.search("(\d+) of (\d+)", ldescription)
+        if m.group(1) == m.group(2):
+            return 1
+    if "PTS" in play["description"] and "free throw" not in ldescription:
+        return 1
+    return 0
+
 def process_lineup(play):
     """ There will always be a sub after an ejection """
     if (play["actionType"].strip() in ["Timeout", "Instant Replay", "Ejection"] 

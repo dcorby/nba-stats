@@ -2,6 +2,7 @@ import sys
 import glob
 import re
 import io
+import copy
 import pprint
 pp = pprint.PrettyPrinter(indent=2, compact=True)
 from termcolor import colored, cprint
@@ -98,7 +99,7 @@ def set_lineups(gid, plays, players):
 
     # Iterate through plays
     for i, play in enumerate(plays):
-        # Set the starting lineup
+        # Set the sprint(tarting lineup
         play["lineups"] = {}
         if i == 0:
             for team in ["away", "home"]:
@@ -235,8 +236,36 @@ def summarize(num, plays, players):
             color = "red" if abs(diff) > 5 else None
             cprint(f"Player={pid}/{player['lastI']}, Actual={actual}, Computed={computed}", color)
 
+def to_csv(f, gid, plays):
+    matchups = {}
+    for i, play in enumerate(sorted(plays, key=lambda d: d["origId"])):
+        if i == 0:
+            continue
+        away = set(sorted(play["lineups"]["away"]))
+        home = set(sorted(play["lineups"]["home"]))
+        key = ",".join((away).union(home))
+        # A few plays missing 5x5 because of lineup errors
+        if key.count(",") != 9:
+            continue
+        default = { "gid": gid, "away": away, "home": home, "a_pm": 0, "h_pm": 0, "poss": 0, "a_pm100": 0.0, "h_pm100": 0.0 }
+        matchups[key] = matchups.get(key, copy.copy(default))
+        away_pts = int(play["scoreAway"] or 0) - int(plays[i-1]["scoreAway"] or 0)
+        home_pts = int(play["scoreHome"] or 0) - int(plays[i-1]["scoreHome"] or 0)
+        matchups[key]["a_pm"] = away_pts - home_pts
+        matchups[key]["h_pm"] = home_pts - away_pts
+        matchups[key]["poss"] += helper.is_poss(play, plays[i-1])
+    for i, key in enumerate(matchups):
+        val = matchups[key]
+        if val["poss"] == 0:
+            continue
+        val["a_pm100"] = val["a_pm"] / val["poss"] * 100
+        val["h_pm100"] = val["h_pm"] / val["poss"] * 100
+        line = f"{i},{val['gid']},{':'.join(val['away'])},{':'.join(val['home'])},{val['a_pm']},{val['h_pm']},{val['poss']},{val['a_pm100']},{val['h_pm100']}"
+        f.write(f"{line}\n")
+
 def main():
     count = len(re.findall("\d{10}", open(f"{games_dir}/games.csv", "r").read()))
+    csv = open(f"{game_dir}/df.csv", "w")
     def parse(num, string):
         gid = string[0:10]
         print(f"Parsing game num {num} of {count} ({gid})")
@@ -245,6 +274,7 @@ def main():
         plays = get_plays(f)
         plays = set_lineups(gid, plays, players)
         summarize(num, plays, players)
+        to_csv(csv, gid, plays)
     with open(f"{game_dir}/game.csv", "r") as f:
         num = 1
         string = ""
