@@ -173,15 +173,12 @@ def set_lineups(gid, plays, players):
         for play in plays:
             if play["origId"] in [463,464,465,466,467,470,471]:
                 play["lineups"]["home"].remove("202710")
-
     return plays
 
 def summarize(num, plays, players):
     def get_seconds(final):
         seconds = {}
         for i, play in enumerate(plays):
-            #if num == 3284:
-            #    print(play["origId"], play["lineups"])
             def get_seconds(play, next_play):
                 if play["clock"] == "PT00M00.00S":
                     return 0.0
@@ -248,8 +245,6 @@ def main():
         plays = get_plays(f)
         plays = set_lineups(gid, plays, players)
         summarize(num, plays, players)
-        #if num == 3284:
-        #    sys.exit()
     with open(f"{game_dir}/game.csv", "r") as f:
         num = 1
         string = ""
