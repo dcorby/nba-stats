@@ -265,7 +265,9 @@ def to_csv(f, gid, plays):
 
 def main():
     count = len(re.findall("\d{10}", open(f"{games_dir}/games.csv", "r").read()))
-    csv = open(f"{game_dir}/df.csv", "w")
+    csv = open(f"{game_dir}/lineups.csv", "w")
+    csv.write("gid,away,home,a_pm,h_pm,poss,a_pm100,h_pm100\n")
+
     def parse(num, string):
         gid = string[0:10]
         print(f"Parsing game num {num} of {count} ({gid})")
