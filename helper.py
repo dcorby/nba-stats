@@ -55,5 +55,7 @@ def force_player(name):
         return "1628997"
     if name == "Mason":
         return "1628412"
+    if name == "Louzada Silva":
+        return "1629712"
     return None
 
