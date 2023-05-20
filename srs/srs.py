@@ -12,7 +12,7 @@ games_dir = f"{base_dir}/data/games"
 
 def main():
 
-    # Get skeds
+    """ Parse the schedule and get the date bounds """
     seasons = {}
     with open(f"{base_dir}/skeds.txt", "r") as f:
         for line in f:
@@ -22,10 +22,11 @@ def main():
 
     def get_season(date):
         for season in seasons:
-            if date >= seasons[season]["dates"]["from"] and seasons[season]["dates"]["to"]:
+            if date >= seasons[season]["dates"]["from"] and date <= seasons[season]["dates"]["to"]:
                 return season
         raise Exception("Season not found")
 
+    """ Collect the raw data games.csv """
     with open(f"{games_dir}/games.csv", "r") as f:
         for line in f:
             # e.g. 2023-04-09,0022201230,warriors,157,blazers,101
@@ -34,11 +35,11 @@ def main():
             season = get_season(date)
 
             # Make sure it's a real game
-            if not helper.get_tricode(away):
+            if not helper.get_tricode(away, no_exc=True):
                 continue
 
-            # Seasons has a teams property, holding raw data for calculation
-            teams = seasons.get("teams", {})
+            # Season has a teams property, holding raw data for calculation
+            teams = seasons[season].get("teams", {})
             mov_a = pts_a - pts_h
             mov_h = pts_h - pts_a
             teams[away] = teams.get(away, { "vs": [], "mov": [], "avg_mov": None })
@@ -47,31 +48,34 @@ def main():
             teams[home]["vs"].append(home)
             teams[away]["mov"].append(mov_a)
             teams[home]["mov"].append(mov_h)
-
             for team in teams:
                 teams[team]["avg_mov"] = statistics.fmean(teams[team]["mov"])
+            # Update teams property
+            seasons[season]["teams"] = teams
 
-            coeffs = []     # left hand side
-            constants = []  # right hand side
+    """ Compute SRS for seasons """
+    for season in seasons:
+        coeffs = []     # left hand side
+        constants = []  # right hand side
+        teams = seasons[season]["teams"]
+        for team in teams:
+            cfs = []
+            for opp in teams:
+                if team == opp:
+                    cfs.append(-1)
+                elif team in teams.keys():
+                    cfs.append(1 / len(teams[team]["vs"]))
+                else:
+                    cfs.append(0)
+            coeffs.append(cfs)
+            constants.append(teams[team]["avg_mov"] * -1)
 
-            for team in teams:
-                cfs = []
-                for opp in teams:
-                    if team == opp:
-                        cfs.append(-1)
-                    elif team in teams.keys():
-                        cfs.append(1 / len(teams[team]["vs"]))
-                    else:
-                        cfs.append(0)
-                coeffs.append(cfs)
-                constants.append(teams[team]["avg_mov"] * -1)
-
-            srs = np.linalg.solve(np.array(coeffs), np.array(constants)).tolist()
-            dct = {}
-            for i, team in enumerate(teams):
-                dct[team] = srs[i]
-            print(season)
-            pp.pprint(dct)
+        srs = np.linalg.solve(np.array(coeffs), np.array(constants)).tolist()
+        dct = {}
+        for i, team in enumerate(teams):
+            dct[team] = srs[i]
+        print(season)
+        pp.pprint(dct)
 
 
 if __name__ == "__main__":
