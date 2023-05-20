@@ -4,7 +4,7 @@ action = ["clock", "period", "teamTricode", "personId", "playerName", "xLegacy",
 
 special_games = ["0032100004", "0032100005", "0032100006", "0032000001", "0032200001", "0032200004", "0032200005", "0032200006", "0032100001"]
 
-def get_tricode(name):
+def get_tricode(name, no_exc=False):
     teams = {
       "warriors": "GSW", "lakers"  : "LAL", "celtics": "BOS", "heat"        : "MIA", "pistons"  : "DET",
       "hornets" : "CHA", "pelicans": "NOP", "bucks"  : "MIL", "hawks"       : "ATL", "mavericks": "DAL",
@@ -14,6 +14,8 @@ def get_tricode(name):
       "rockets" : "HOU", "jazz"    : "UTA", "spurs"  : "SAS", "timberwolves": "MIN", "clippers" : "LAC"
     }
     if name not in teams:
+        if no_exc:
+            return None
         raise Exception(f"get_tricode() team not found (team={name})")
     return teams[name]
 
