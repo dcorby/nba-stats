@@ -1,0 +1,37 @@
+<svg width="510" height="510" style="background:#ffffff;transform:rotate(180,50%,50%)">
+      <g class="markings" transform="translate(5, 5)">
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" style="stroke-linecap:round" d="M470,0v140"></path>
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" style="stroke-linecap:round" d="M30,0v140"></path>
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" style="stroke-linecap:round" d="M330,0v190"></path>
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" style="stroke-linecap:round" d="M170,0v190"></path>
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" style="stroke-linecap:round" d="M310,0v190"></path>
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" style="stroke-linecap:round" d="M190,0v190"></path>
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" style="stroke-linecap:round" d="M330,190H170"></path>
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" style="stroke-linecap:round" d="M280,40h-60"></path>
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" style="stroke-linecap:round" d="M250,40v2.5"></path>
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" style="stroke-linecap:round" d="M290,40v10"></path>
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" style="stroke-linecap:round" d="M210,40v10"></path>
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" style="stroke-linecap:round" d="M250,42.5c4.1,0,7.5,3.4,7.5,7.5s-3.4,7.5-7.5,7.5s-7.5-3.4-7.5-7.5S245.9,42.5,250,42.5z"></path>
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" style="stroke-linecap:round" d="M0,0v470h190c0-33.1,26.9-60,60-60s60,26.9,60,60h190V0H0z"></path>
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" style="stroke-linecap:round" d="M250,410c-33.1,0-60,26.9-60,60h40c0-11,9-20,20-20s20,9,20,20h40C310,436.9,283.1,410,250,410z"></path>
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" style="stroke-linecap:round" d="M250,450c-11,0-20,9-20,20h40C270,459,261,450,250,450z"></path>
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" style="stroke-linecap:round" d="M310,190c0,33.1-26.9,60-60,60s-60-26.9-60-60c0,33.1,26.9,60,60,60S310,223.1,310,190z"></path>
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" style="stroke-dasharray:5,10" d="M310,190c0-33.1-26.9-60-60-60s-60,26.9-60,60c0-33.1,26.9-60,60-60S310,156.9,310,190z"></path>
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" style="stroke-linecap:round" d="M290,50c0,22.1-17.9,40-40,40s-40-17.9-40-40c0,22.1,17.9,40,40,40S290,72.1,290,50z"></path>
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" style="stroke-linecap:round" d="M469.8,139.9c-49.7,121.4-188.3,179.6-309.7,129.9c-59-24.1-105.8-70.9-129.9-129.9 c49.7,121.4,188.3,179.6,309.7,129.9C398.9,245.7,445.7,198.9,469.8,139.9z"></path>
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" style="stroke-linecap:round" d="M140,0v5"></path>
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" style="stroke-linecap:round" d="M359.9,0v5"></path>
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" style="stroke-linecap:round" d="M470,281.6h30"></path>
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" style="stroke-linecap:round" d="M0,286.7h30"></path>
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" style="" d="M170,69.8h-10"></path>
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" style="" d="M170,79.9h-10"></path>
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" style="" d="M170,109.9h-10"></path>
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" style="" d="M170,140h-10"></path>
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" style="" d="M340,69.8h-10"></path>
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" style="" d="M340,79.9h-10"></path>
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" style="" d="M340,109.9h-10"></path>
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" d="M0,140h30"></path>
+         <path class="mark" fill="none" stroke="#1d428a" stroke-width="2.6" d="M470,139.9h30"></path>
+      </g>
+</svg>
+

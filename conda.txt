@@ -29,4 +29,8 @@ conda info --envs
 conda env list
 
 # Activate
-conda activate ts
+conda activate custom
+
+env=custom has:
+pip install --ignore-installed tensorflow
+pip install cairosvg
