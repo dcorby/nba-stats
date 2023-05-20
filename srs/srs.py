@@ -9,6 +9,7 @@ import helper
 
 base_dir = "/home/dmc7z/nba-stats"
 games_dir = f"{base_dir}/data/games"
+srs_dir = f"{base_dir}/srs"
 
 def main():
 
@@ -71,12 +72,18 @@ def main():
             constants.append(teams[team]["avg_mov"] * -1)
 
         srs = np.linalg.solve(np.array(coeffs), np.array(constants)).tolist()
-        dct = {}
         for i, team in enumerate(teams):
-            dct[team] = srs[i]
-        print(season)
-        pp.pprint(dct)
+            teams[team]["srs"] = srs[i]
+        seasons[season]["teams"] = teams
 
-
+    """ Write the file """
+    with open(f"{srs_dir}/srs.csv", "w") as f:
+        for season in seasons:
+            teams = seasons[season]["teams"]
+            for team in teams:
+                srs = teams[team]["srs"]
+                line = f"{season},{team},{srs}"
+                f.write(f"{line}\n")
+            
 if __name__ == "__main__":
     main()
