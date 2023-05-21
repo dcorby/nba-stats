@@ -61,13 +61,10 @@ def get_pbp(games):
                 clock = clock.replace("PT", "").split(".")[0]
                 minutes, seconds = [int(x) for x in clock.split("M")]
                 sec_rem = 4*12*60 - (12*60*(period-1)) - (12*60 - (minutes*60 + seconds))
-                #if sec_rem <= 5:
-                #    print(period, sec_rem)
                 if sec_rem % 720 != 0:
-                    #games[gid]["pbp"].append({ "margin": margin, "sec_rem": sec_rem })
                     games[gid]["pbp"].append({ "margin": margin, "sec_rem": np.log(sec_rem) })
-            #if gid_count > 5:
-            #    sys.exit()
+                    # Check the appropriateness of np.log re-expression
+                    # https://stats.stackexchange.com/questions/298/in-linear-regression-when-is-it-appropriate-to-use-the-log-of-an-independent-va
     return games
 
 def get_train_data(games):
@@ -78,20 +75,8 @@ def get_train_data(games):
     X, y = [], []
     for i, gid in enumerate(games):
         for play in games[gid]["pbp"]:
-            #X.append([ play["margin"], play["sec_rem"], play["margin"]*play["sec_rem"] ])
             X.append([ play["margin"], play["sec_rem"] ])
-            #X.append([ play["pred"] ])
             y.append(games[gid]["outcome"])
-
-            #X.append([ -1*play["margin"], play["sec_rem"] ])
-            #y.append(int(not bool(games[gid]["outcome"])))
-
-            #if play["sec_rem"] <= 5:
-            #    print(play)
-        #if i == 5:
-        #    print("5 games finished...")
-        #    sys.exit()
-
     return X, y
 
 def main():
@@ -102,45 +87,35 @@ def main():
 
     poly = PolynomialFeatures(2, interaction_only=True)
     X = poly.fit_transform(X)
-
-    #X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)
-
-    #for i, row in enumerate(X):
-    #    if -3 <= row[0] <= -1 and row[1] < 30:
-    #        print(row, y[i])
-
-    #def log_transform(x):
-    #    print(x)
-    #    return np.log(x + 1)
-
-    #from sklearn.preprocessing import StandardScaler
-    #from sklearn.pipeline import Pipeline
-    #scaler = StandardScaler()
-    #transformer = FunctionTransformer(log_transform)
-    #pipe = Pipeline([('scaler', scaler), ('transformer', transformer), ('regressor', LogisticRegression())])
-    #pipe.fit(X, y)
-
     clf = LogisticRegression().fit(X, y)
-    #clf = LogisticRegression().fit(X, y)
-    #clf = LogisticRegression(random_state=0).fit(X_train, y_train)
     intercept = clf.intercept_[0]
     coefs = clf.coef_[0]
 
-    #print(intercept)
-    #print(coefs)
-
-    # Make some predictions
-    # https://scikit-learn.org/stable/modules/preprocessing.html#polynomial-features
-    # PolynomialFeatures(2) -> 1,X1,X2,X1^2,X1*X2,X2^2
-    #print(clf.predict_proba([[1, -10, 5, -10*-10, -10*5, 5*5]]))
-    #print(clf.predict_proba([[1, -10, 5, -10*5]]))
-    #print(clf.predict_proba([[-10, 5]]))
-    #print(clf.predict_proba([[np.log(-10/5)]]))
     print(clf.classes_)
-    #print(clf.predict_proba([[ 10.0 + (1400/2800)*6.86, 1400]]))
-    print(clf.predict_proba([[ 1, 10.0, np.log(10), 10.0*np.log(10)]]))
+    print("up 30, at half")
+    print(clf.predict_proba([[ 1, 30.0, np.log(1400), 30.0*np.log(1400)]]))
+    print("up 20, at half")
+    print(clf.predict_proba([[ 1, 20.0, np.log(1400), 20.0*np.log(1400)]]))
+    print("up 10, at half")
     print(clf.predict_proba([[ 1, 10.0, np.log(1400), 10.0*np.log(1400)]]))
-
+    print("up 5, at half")
+    print(clf.predict_proba([[ 1, 5.0, np.log(1400), 5.0*np.log(1400)]]))
+    print("tied, at half")
+    print(clf.predict_proba([[ 1, 0.0, np.log(1400), 0.0*np.log(1400)]]))
+    print("tied, 4 minutes left")
+    print(clf.predict_proba([[ 1, 0.0, np.log(240), 0.0*np.log(240)]]))
+    print("up 10, 10 minutes left")
+    print(clf.predict_proba([[ 1, 10.0, np.log(600), 10.0*np.log(600)]]))
+    print("up 10, 3 minutes left")
+    print(clf.predict_proba([[ 1, 10.0, np.log(180), 10.0*np.log(180)]]))
+    print("up 5, 3 minutes left")
+    print(clf.predict_proba([[ 1, 5.0, np.log(180), 5.0*np.log(180)]]))
+    print("up 10, 2 minutes left")
+    print(clf.predict_proba([[ 1, 10.0, np.log(120), 10.0*np.log(120)]]))
+    print("up 10, 1 minute left")
+    print(clf.predict_proba([[ 1, 10.0, np.log(60), 10.0*np.log(60)]]))
+    print("up 10, 10 seconds left")
+    print(clf.predict_proba([[ 1, 10.0, np.log(10), 10.0*np.log(10)]]))
 
 if __name__ == "__main__":
     main()
