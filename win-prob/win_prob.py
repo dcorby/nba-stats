@@ -1,5 +1,6 @@
 import sys
 import re
+import math
 from sklearn.datasets import load_iris
 from sklearn.linear_model import LogisticRegression
 sys.path.append("..")
@@ -56,19 +57,54 @@ def get_games(srs, seasons):
             y.append(outcome)
     return X, y
 
+# https://data.library.virginia.edu/logistic-regression-four-ways-with-python/
+# https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html
 def main():
     srs = get_srs()
     seasons = get_seasons()
     X, y = get_games(srs, seasons)
-    print(X)
-    print(y)
-    import sys
-    sys.exit()
+
+    # penalty = 'none', solver = 'newton-cg', max_iter= 150
     clf = LogisticRegression(random_state=0).fit(X, y)
-    clf.predict(X[:2, :])
-    array([0, 0])
-    clf.predict_proba(X[:2, :])
-    clf.score(X, y)
+
+    # clf.classes_         distinct values that y takes
+    # clf.intercept_       b0, e.g. array([-1.04608067])
+    # clf.coef_            b1, e.g. array([[0.51491375]])
+    # clf.predict_proba(x) array([[0.74002157, 0.25997843],
+    #                             [0.62975524, 0.37024476],
+    # clf.predict(x)       array([0, 0, 0, 1, 1, 1, 1, 1, 1, 1])
+    # clf.score(X, y)
+
+    intercept = clf.intercept_[0]
+    coef = clf.coef_[0][0]
+
+    """
+    This...
+    # p(x) = 1 / 1 + math.exp(-1 * (intercept + coef*srs_margin))
+    # where math.exp(x) is "e to the power of x"
+    prob = 1 / (1 + math.exp(-1 * (intercept + coef*0)))
+    print(f"home_margin=0, prob={prob}")
+    prob = 1 / (1 + math.exp(-1 * (intercept + coef*1)))
+    print(f"home_margin=1, prob={prob}")
+    prob = 1 / (1 + math.exp(-1 * (intercept + coef*2)))
+    print(f"home_margin=2, prob={prob}")
+    prob = 1 / (1 + math.exp(-1 * (intercept + coef*3)))
+    print(f"home_margin=3, prob={prob}")
+    prob = 1 / (1 + math.exp(-1 * (intercept + coef*4)))
+    print(f"home_margin=4, prob={prob}")
+    prob = 1 / (1 + math.exp(-1 * (intercept + coef*5)))
+    print(f"home_margin=5, prob={prob}")
+
+    ...is identical to this:
+    print(clf.predict_proba([[0],[1],[2],[3],[4],[5]]))
+    [[0.43555146 0.56444854]
+     [0.40550412 0.59449588]
+     [0.37614829 0.62385171]
+     [0.34767479 0.65232521]
+     [0.32025021 0.67974979]
+     [0.29401387 0.70598613]]
+    """
+
 
 
 if __name__ == "__main__":
