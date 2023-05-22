@@ -83,7 +83,6 @@ def get_train_data(games):
     y: list with home team outcome (win=1, loss=0)
     """
     X, y = {}, {}
-    #X, y = [], []
     for i, gid in enumerate(games):
         for play in games[gid]["pbp"]:
             if play["sec_rem"] == 0:
