@@ -82,7 +82,7 @@ def get_train_data(games):
     X: matrix with fields margin and sec_rem
     y: list with home team outcome (win=1, loss=0)
     """
-    X, y = {}, {}
+    gids, X, y = [], {}, {}
     for i, gid in enumerate(games):
         for play in games[gid]["pbp"]:
             if play["sec_rem"] == 0:
@@ -92,14 +92,16 @@ def get_train_data(games):
             y[sec_rem] = y.get(sec_rem, [])
             X[sec_rem].append([ play["margin"], sec_rem ])
             y[sec_rem].append(games[gid]["outcome"])
-    return X, y
+        gids.append(gid)
+    return gids, X, y
 
-def main():
+def get_models():
     games = get_games()
     games = get_pbp(games)
 
-    X, y = get_train_data(games)
+    gids, X, y = get_train_data(games)
 
+    models = {}
     for sec_rem in sorted(X.keys()):
         _X = X[sec_rem]
         _y = y[sec_rem]
@@ -109,11 +111,12 @@ def main():
 
         clf = LogisticRegression(class_weight={0:0.55,1:0.45}).fit(_X, _y)
         clf = LogisticRegression().fit(_X, _y)
-        intercept = clf.intercept_[0]
-        coefs = clf.coef_[0]
-
-        print(f"up 10, {sec_rem} sec left")
-        print(clf.predict_proba([[ 1, 10.0, sec_rem, 10.0*sec_rem]]))
+        models[sec_rem] = { "X": _X, "model": clf }
+        #intercept = clf.intercept_[0]
+        #coefs = clf.coef_[0]
+        #print(f"up 10, {sec_rem} sec left")
+        #print(clf.predict_proba([[ 1, 10.0, sec_rem, 10.0*sec_rem]]))
+    return games, models
 
 if __name__ == "__main__":
-    main()
+    get_models()

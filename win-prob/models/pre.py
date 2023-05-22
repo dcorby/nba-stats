@@ -41,11 +41,11 @@ def get_games(srs, seasons):
     and a list of outcomes where win=1, loss=0
     """
     # Home team SRS margin (X) and outcome (y)
-    X, y = [], []
+    gids, X, y = [], [], []
     with open(f"{games_dir}/games.csv", "r") as f:
         for line in f:
             m = re.search("(.*?),(.*?),(.*?),(.*?),(.*?),(.*?)\s", line)
-            date, _, away, pts_a, home, pts_h = [int(m.group(x)) if m.group(x).isnumeric() else m.group(x) for x in range(1,6+1)]
+            date, gid, away, pts_a, home, pts_h = [int(m.group(i)) if i in [4,6] else m.group(i) for i in range(1,6+1)]
             if not helper.get_tricode(away, no_exc=True):
                 continue
             season = get_season(date)
@@ -53,19 +53,20 @@ def get_games(srs, seasons):
             srs_margin = float(srs[season][home]) - float(srs[season][away])
             # Get the outcome
             outcome = int(pts_h > pts_a)
+            gids.append(gid)
             X.append([srs_margin])
             y.append(outcome)
-    return X, y
+    return gids, X, y
 
 # https://data.library.virginia.edu/logistic-regression-four-ways-with-python/
 # https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html
-def main():
+def get_model():
     srs = get_srs()
     seasons = get_seasons()
-    X, y = get_games(srs, seasons)
+    gids, X, y = get_games(srs, seasons)
 
-    # penalty = 'none', solver = 'newton-cg', max_iter= 150
     clf = LogisticRegression(random_state=0).fit(X, y)
+    return gids, { "X": X, "model": clf }
 
     # clf.classes_         distinct values that y takes
     # clf.intercept_       b0, e.g. array([-1.04608067])
@@ -75,8 +76,8 @@ def main():
     # clf.predict(x)       array([0, 0, 0, 1, 1, 1, 1, 1, 1, 1])
     # clf.score(X, y)
 
-    intercept = clf.intercept_[0]
-    coef = clf.coef_[0][0]
+    #intercept = clf.intercept_[0]
+    #coef = clf.coef_[0][0]
 
     """
     This...
@@ -105,7 +106,5 @@ def main():
      [0.29401387 0.70598613]]
     """
 
-
-
 if __name__ == "__main__":
-    main()
+    get_model()
