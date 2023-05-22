@@ -4,10 +4,18 @@ import math
 from sklearn.datasets import load_iris
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import PolynomialFeatures
+from sklearn import preprocessing
 import numpy as np
+import pprint
+pp = pprint.PrettyPrinter(indent=2, compact=True)
 sys.path.append("..")
 import helper
+
+"""
+This person has the same solution, namely to model time frames separately
+to circumvent non-linearity of time remaining to win prob relationship
+https://sports.sites.yale.edu/ncaa-basketball-win-probability-model
+"""
 
 base_dir = "/home/dmc7z/nba-stats"
 games_dir = f"{base_dir}/data/games"
@@ -36,15 +44,12 @@ def get_pbp(games):
     with open(f"{game_dir}/game.csv", "r") as f:
         gid = None
         pbp = False
-        gid_count = 0
         for line in f:
             # Set the gid
             m = re.search("^(\d{10})\s", line)
             if m:
                 pbp = False
                 gid = m.group(1) if m.group(1) in games else None
-                if gid:
-                    gid_count += 1
             # If a game is set activate pbp
             if gid and line.strip() == "pbp":
                 pbp = True
@@ -61,10 +66,15 @@ def get_pbp(games):
                 clock = clock.replace("PT", "").split(".")[0]
                 minutes, seconds = [int(x) for x in clock.split("M")]
                 sec_rem = 4*12*60 - (12*60*(period-1)) - (12*60 - (minutes*60 + seconds))
-                if sec_rem % 720 != 0:
-                    games[gid]["pbp"].append({ "margin": margin, "sec_rem": np.log(sec_rem) })
-                    # Check the appropriateness of np.log re-expression
-                    # https://stats.stackexchange.com/questions/298/in-linear-regression-when-is-it-appropriate-to-use-the-log-of-an-independent-va
+                # Backfill
+                if len(games[gid]["pbp"]) > 0:
+                    prev = games[gid]["pbp"][-1]
+                    diff = prev["sec_rem"] - sec_rem
+                    if diff > 1:
+                        for add, i in enumerate(range(0, diff)):
+                            games[gid]["pbp"].append({ "margin": prev["margin"], "sec_rem": prev["sec_rem"] - add })
+                games[gid]["pbp"].append({ "margin": margin, "sec_rem": sec_rem })
+                    
     return games
 
 def get_train_data(games):
@@ -72,11 +82,17 @@ def get_train_data(games):
     X: matrix with fields margin and sec_rem
     y: list with home team outcome (win=1, loss=0)
     """
-    X, y = [], []
+    X, y = {}, {}
+    #X, y = [], []
     for i, gid in enumerate(games):
         for play in games[gid]["pbp"]:
-            X.append([ play["margin"], play["sec_rem"] ])
-            y.append(games[gid]["outcome"])
+            if play["sec_rem"] == 0:
+                continue
+            sec_rem = play["sec_rem"]
+            X[sec_rem] = X.get(sec_rem, [])
+            y[sec_rem] = y.get(sec_rem, [])
+            X[sec_rem].append([ play["margin"], sec_rem ])
+            y[sec_rem].append(games[gid]["outcome"])
     return X, y
 
 def main():
@@ -85,37 +101,20 @@ def main():
 
     X, y = get_train_data(games)
 
-    poly = PolynomialFeatures(2, interaction_only=True)
-    X = poly.fit_transform(X)
-    clf = LogisticRegression().fit(X, y)
-    intercept = clf.intercept_[0]
-    coefs = clf.coef_[0]
+    for sec_rem in sorted(X.keys()):
+        _X = X[sec_rem]
+        _y = y[sec_rem]
 
-    print(clf.classes_)
-    print("up 30, at half")
-    print(clf.predict_proba([[ 1, 30.0, np.log(1400), 30.0*np.log(1400)]]))
-    print("up 20, at half")
-    print(clf.predict_proba([[ 1, 20.0, np.log(1400), 20.0*np.log(1400)]]))
-    print("up 10, at half")
-    print(clf.predict_proba([[ 1, 10.0, np.log(1400), 10.0*np.log(1400)]]))
-    print("up 5, at half")
-    print(clf.predict_proba([[ 1, 5.0, np.log(1400), 5.0*np.log(1400)]]))
-    print("tied, at half")
-    print(clf.predict_proba([[ 1, 0.0, np.log(1400), 0.0*np.log(1400)]]))
-    print("tied, 4 minutes left")
-    print(clf.predict_proba([[ 1, 0.0, np.log(240), 0.0*np.log(240)]]))
-    print("up 10, 10 minutes left")
-    print(clf.predict_proba([[ 1, 10.0, np.log(600), 10.0*np.log(600)]]))
-    print("up 10, 3 minutes left")
-    print(clf.predict_proba([[ 1, 10.0, np.log(180), 10.0*np.log(180)]]))
-    print("up 5, 3 minutes left")
-    print(clf.predict_proba([[ 1, 5.0, np.log(180), 5.0*np.log(180)]]))
-    print("up 10, 2 minutes left")
-    print(clf.predict_proba([[ 1, 10.0, np.log(120), 10.0*np.log(120)]]))
-    print("up 10, 1 minute left")
-    print(clf.predict_proba([[ 1, 10.0, np.log(60), 10.0*np.log(60)]]))
-    print("up 10, 10 seconds left")
-    print(clf.predict_proba([[ 1, 10.0, np.log(10), 10.0*np.log(10)]]))
+        poly = preprocessing.PolynomialFeatures(2, interaction_only=True)
+        _X = poly.fit_transform(_X)
+
+        clf = LogisticRegression(class_weight={0:0.55,1:0.45}).fit(_X, _y)
+        clf = LogisticRegression().fit(_X, _y)
+        intercept = clf.intercept_[0]
+        coefs = clf.coef_[0]
+
+        print(f"up 10, {sec_rem} sec left")
+        print(clf.predict_proba([[ 1, 10.0, sec_rem, 10.0*sec_rem]]))
 
 if __name__ == "__main__":
     main()
