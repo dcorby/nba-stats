@@ -30,10 +30,10 @@ def get_games():
     with open(f"{games_dir}/games.csv", "r") as f:
         for line in f:
             m = re.search("(.*?),(.*?),(.*?),(.*?),(.*?),(.*?)\s", line)
-            _, gid, __, pts_a, home, pts_h = [int(m.group(x)) if x in [4,6] else m.group(x) for x in range(1,6+1)]
+            date, gid, away, pts_a, home, pts_h = [int(m.group(x)) if x in [4,6] else m.group(x) for x in range(1,6+1)]
             if not helper.get_tricode(home, no_exc=True):
                 continue
-            games[gid] = { "home": home, "outcome": int(pts_h > pts_a), "pbp": [] }
+            games[gid] = { "date": date, "home": home, "away": away, "outcome": int(pts_h > pts_a), "pbp": [] }
     return games
 
 def get_pbp(games):
