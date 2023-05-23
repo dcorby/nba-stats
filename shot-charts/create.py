@@ -6,6 +6,9 @@ import cairosvg
 import matplotlib.pyplot as plt
 from PIL import Image
 from io import BytesIO
+from matplotlib.ticker import PercentFormatter
+from matplotlib.ticker import ScalarFormatter
+from matplotlib.ticker import FuncFormatter
 
 base_dir = "/home/dmc7z/nba-stats"
 work_dir = f"{base_dir}/shot-charts"
@@ -36,20 +39,23 @@ def main():
                     y.append(_y + 50)
                     fg2m = int(result == "made" and "3PT" not in line)
                     fg3m = int(result == "made" and "3PT" in line)
-                    C.append((fg2m + 1.5*fg3m)/1)
+                    C.append(fg2m + 1.5*fg3m) 
 
-    plt.figure(figsize=(8,8))
+    fig = plt.figure(figsize=(8,8))
     png = cairosvg.svg2png(file_obj=open(f"{work_dir}/court.svg", "r"))
     img = Image.open(BytesIO(png))
     width, height = img.size
     plt.imshow(img, extent=[0,510,0,510])
-    plt.axis("off")
 
     # Make the plot
     # Halfcourt if aspect=15/14, but "To get approximately regular hexagons, choose..."
     # https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.hexbin.html
     #RdYlGn
-    plt.hexbin(x, y, C=C, reduce_C_function=np.mean, mincnt=100, gridsize=33, bins="log", alpha=0.75, cmap="RdYlGn")
+    hb = plt.hexbin(x, y, C=C, reduce_C_function=np.mean, mincnt=100, gridsize=33, bins="log", alpha=0.75, cmap="RdYlGn")
+    ax = plt.gca()
+    fmt = PercentFormatter()
+    fmt = FuncFormatter(lambda x,_: "")
+    cb = fig.colorbar(hb, ax=ax, shrink=0.5, format=fmt)
     plt.axis("off")
     plt.show()
 
