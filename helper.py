@@ -1,4 +1,5 @@
 import re
+from datetime import datetime, date, timedelta
 
 action = ["clock", "period", "teamTricode", "personId", "playerName", "xLegacy", "yLegacy", "shotDistance", "shotResult", "isFieldGoal", "scoreHome", "scoreAway", "description", "actionType", "subType"]
 
@@ -78,4 +79,16 @@ def force_player(name):
     if name == "Louzada Silva":
         return "1629712"
     return None
+
+get_dt = lambda x : datetime.strptime(x, "%Y-%m-%d").date()
+
+def get_dates(date_from, date_to):
+    """ Get a list of datetimes between two given yyyy-mm-dd dates """
+    begin = get_dt(date_from)
+    delta = get_dt(date_to) - begin
+    dates = []
+    for i in range(delta.days + 1):
+        day = begin + timedelta(days=i)
+        dates.append(day)
+    return dates
 

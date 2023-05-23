@@ -4,12 +4,12 @@ import json
 import shutil
 import glob
 import urllib.request
-from datetime import datetime, date, timedelta
 import pprint
 pp = pprint.PrettyPrinter(indent=2, compact=True)
 from termcolor import colored, cprint
 from pathlib import Path
 import time
+import helper
 
 """
 Parse skeds.txt and get the game summaries for all seasons and dates
@@ -19,23 +19,11 @@ Write to files by date then concat to games.csv
 base_dir = "/home/dmc7z/nba-stats"
 games_dir = f"{base_dir}/data/games"
 
-get_dt = lambda x : datetime.strptime(x, "%Y-%m-%d").date()
 def get_json(contents):
     m = re.search('<script id="__NEXT_DATA__" type="application/json">(.*?)</script>', contents, re.M + re.S)
     return json.loads(m.group(1))
 
-def get_dates(date_from, date_to):
-    """ Get a list of datetimes between two given yyyy-mm-dd dates """
-    begin = get_dt(date_from)
-    delta = get_dt(date_to) - begin
-    dates = []
-    for i in range(delta.days + 1):
-        day = begin + timedelta(days=i)
-        dates.append(day)
-    return dates
-
 def main():
-
     # Confirm to overwrite games.csv if it exists
     if Path(f"{games_dir}/games.csv").is_file():
         ans = input("Continue and overwrite games.csv? ")
@@ -48,7 +36,7 @@ def main():
         for line in f:
             m = re.search("(\d{4}-\d{2}):(\d{4}-\d{2}-\d{2}) - (\d{4}-\d{2}-\d{2})", line)
             season, date_from, date_to = m.group(1), m.group(2), m.group(3)
-            dates = get_dates(date_from, date_to)
+            dates = helper.get_dates(date_from, date_to)
             seasons[season] = dates
 
     # Loop through seasons and get daily schedules and games

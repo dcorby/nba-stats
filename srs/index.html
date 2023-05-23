@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="https://d3js.org/d3.v6.js"></script>
+</head>
+
+<body>
+  <div id="chart"></div>
+
+<script>
+const margin = { top: 10, right: 30, bottom: 30, left: 60 };
+const width = 860 - margin.left - margin.right;
+const height = 680 - margin.top - margin.bottom;
+
+const svg = d3.select("#chart")
+              .append("svg")
+              .attr("width", width + margin.left + margin.right)
+              .attr("height", height + margin.top + margin.bottom)
+              .append("g")
+              .attr("transform", `translate(${margin.left},${margin.top})`);
+
+d3.json("/data/2022-23.json")
+.then(
+  function(data) {
+    data.dates = data.dates.map(function(d) {
+      return d3.timeParse("%Y-%m-%d")(d)
+    });
+    return data;
+})
+.then(
+  function(data) {
+    console.log(data);
+    // Add x axis
+    const x = d3.scaleTime()
+                .domain(d3.extent(data.dates, function(d) { return d; }))
+                .range([ 0, width ]);
+    svg.append("g")
+       .attr("transform", `translate(0, ${height})`)
+       .call(d3.axisBottom(x));
+
+    // Add y axis
+    const y = d3.scaleLinear()
+                .domain([-15, 15])
+                //.domain(d3.extent(data, function(d) { return d.dateRep; }))
+                //.domain([0, d3.max(d, function(d) { return +d; })])
+                .range([ height, 0 ]);
+    svg.append("g")
+       .call(d3.axisLeft(y));
+
+    // Add the lines
+    for (const team in data.teams) {
+      console.log(data.teams[team]);
+      svg.append("path")
+         .datum(data.teams[team])
+         .attr("fill", "none")
+         .attr("stroke", "steelblue")
+         .attr("stroke-width", 2.0)
+         .attr("d", d3.line()
+           .x(function(d,i) { return x(data.dates[i]) })
+           .y(function(d,i) { return y(d) })
+         );
+    }
+});
+</script>
+</body>
+</html>

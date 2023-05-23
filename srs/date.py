@@ -2,6 +2,7 @@ import sys
 import re
 import numpy as np
 import statistics
+import json
 import pprint
 pp = pprint.PrettyPrinter(indent=2, compact=True)
 sys.path.append("..")
@@ -25,6 +26,10 @@ def get_srs(seasons, for_season, thru_date):
             m = re.search("(.*?),(.*?),(.*?),(.*?),(.*?),(.*?)\s", line)
             date, gid, away, pts_a, home, pts_h = [int(m.group(x)) if m.group(x).isnumeric() else m.group(x) for x in range(1,6+1)]
             season = get_season(date)
+            if season != for_season:
+                continue
+            if date > str(thru_date):
+                continue
 
             # Make sure it's a real game
             if not helper.get_tricode(away, no_exc=True):
@@ -46,7 +51,7 @@ def get_srs(seasons, for_season, thru_date):
     """ Compute SRS for seasons """
     coeffs = []     # left hand side
     constants = []  # right hand side
-    teams = seasons[season]["teams"]
+    teams = seasons[for_season]["teams"]
     for team in teams:
         cfs = []
         for opp in teams:
@@ -70,22 +75,49 @@ def get_srs(seasons, for_season, thru_date):
 def main():
     """ Parse the schedule and get the date bounds """
     seasons = {}
-    for season in ["2020-21", "2021-22", "2022-23"]:
-        with open(f"{base_dir}/skeds.txt", "r") as f:
-            for line in f:
-                m = re.search("(\d{4}-\d{2}):(\d{4}-\d{2}-\d{2}) - (\d{4}-\d{2}-\d{2})", line)
-                season, date_from, date_to = m.group(1), m.group(2), m.group(3)
-                seasons[season] = { "dates": { "from": date_from, "to": date_to }}
+    with open(f"{base_dir}/skeds.txt", "r") as f:
+        for line in f:
+            m = re.search("(\d{4}-\d{2}):(\d{4}-\d{2}-\d{2}) - (\d{4}-\d{2}-\d{2})", line)
+            season, date_from, date_to = m.group(1), m.group(2), m.group(3)
+            seasons[season] = { "dates": { "from": date_from, "to": date_to }}
     data = {}
-    for season in seasons:
-        for date in helper.get_dates(seasons[season]["dates"]["from"], seasons[season]["dates"]["to"]):
+    for season in ["2022-23"]:
+        dates = helper.get_dates(seasons[season]["dates"]["from"], seasons[season]["dates"]["to"])
+        for date in dates:
             print(f"SRS for season={season}, thru date={date}...")
             teams = get_srs(seasons, season, date)
             data[season] = data.get(season, { "dates": [], "teams": {} })
-            data[season]["dates"].append(date)
+            data[season]["dates"].append(str(date))
             for team in teams:
-                data[season]["teams"][team] = data[season]["teams"].get(team, [])
-                data[season]["teams"][team].append(teams[team]["srs"])
+                data[season]["teams"][team] = data[season]["teams"].get(team, {})
+                data[season]["teams"][team][date] = teams[team]["srs"]
+
+        # Replace the team dict with a list, with length and order of dates
+        for team in data[season]["teams"]:
+            lst = []
+            prev_srs = None
+            for date in dates:
+                # Hmmm... weird solutions on this date!
+                if str(date) == "2022-12-16":
+                    lst.append(prev_srs)
+                elif date in data[season]["teams"][team]:
+                    lst.append(data[season]["teams"][team][date])
+                    prev_srs = data[season]["teams"][team][date]
+                else:
+                    if prev_srs:
+                        lst.append(prev_srs)
+                    else:
+                        lst.append(0.0)
+            data[season]["teams"][team] = lst
+
+        pathname = f"{base_dir}/data/srs/{season}.json"
+        print(f"Writing json file={pathname}...")
+        #for team in data[season]["teams"]:
+        #    print(len(data[season]["teams"][team]))
+        #sys.exit()
+        with open(pathname, "w") as f:
+            f.write(json.dumps(data[season]))
+        sys.exit()
 
 if __name__ == "__main__":
     main()
