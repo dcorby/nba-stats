@@ -45,8 +45,8 @@ def main():
             mov_h = pts_h - pts_a
             teams[away] = teams.get(away, { "vs": [], "mov": [], "avg_mov": None })
             teams[home] = teams.get(home, { "vs": [], "mov": [], "avg_mov": None })
-            teams[away]["vs"].append(away)
-            teams[home]["vs"].append(home)
+            teams[away]["vs"].append(home)
+            teams[home]["vs"].append(away)
             teams[away]["mov"].append(mov_a)
             teams[home]["mov"].append(mov_h)
             for team in teams:
