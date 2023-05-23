@@ -1,4 +1,5 @@
 import sys
+import re
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import GridSearchCV
@@ -85,7 +86,7 @@ for alph in alphas:
     
     sorted_rapm = [x for _, x in sorted(zip(player_rapm, players), reverse=True)]
     
-    for i,player in enumerate(sorted_rapm):
+    for i, player in enumerate(sorted_rapm):
         if player == "203954":
             embiid.append(sorted(player_rapm, reverse=True)[i])
         elif player == "201935":
@@ -120,6 +121,16 @@ plt.xlabel("Lambda Parameter")
 plt.ylabel("RAPM Rating")
 """
 
+
+""" Get a player name lookup """
+names = {}
+with open(f"{game_dir}/game.csv", "r") as f:
+    for line in f:
+        if re.match("\d+,", line):
+            tokens = line.split(",")
+            name = tokens[1] + " " + tokens[2]
+            names[tokens[0]] = name
+
 """
 Make choice of lambda and perform final RAPM regression
 Regression coefficients give scaled player RAPM values
@@ -127,5 +138,14 @@ Regression coefficients give scaled player RAPM values
 ridge_reg = Ridge(alpha=grid_search.best_params_["alpha"])
 ridge_reg.fit(x_train, y_train)
 player_rapm = ridge_reg.coef_
+
+named = []
 for i, rapm in enumerate(player_rapm):
-    print(players[i], rapm)
+    named.append({ "name": names[players[i]], "rapm": rapm })
+for i, dct in enumerate(reversed(sorted(named, key=lambda d: d["rapm"])), 1):
+    print(f"{i}. {dct['name']}, {dct['rapm']}")
+    if i == 25:
+        sys.exit()
+    
+    
+    

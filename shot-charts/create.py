@@ -57,6 +57,7 @@ def main():
     fmt = FuncFormatter(lambda x,_: "")
     cb = fig.colorbar(hb, ax=ax, shrink=0.5, format=fmt)
     plt.axis("off")
+    plt.title("eFG%, 2020-21 through 2022-23")
     plt.show()
 
 if __name__ == "__main__":
