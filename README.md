@@ -1,10 +1,10 @@
-#[Shot Charts](https://github.com/dcorby/nba-stats/tree/main/shot-charts)
+### <a href="https://github.com/dcorby/nba-stats/tree/main/shot-charts">Shot Charts</a>
 ![alt text](https://github.com/dcorby/nba-stats/blob/main/nba-stats-efg.png?raw=true)
 
-#[SRS](https://github.com/dcorby/nba-stats/tree/main/srs)
+### <a href="https://github.com/dcorby/nba-stats/tree/main/srs">SRS</a>
 ![alt text](https://github.com/dcorby/nba-stats/blob/main/nba-stats-srs.png?raw=true)
 
-#[Win Prob](https://github.com/dcorby/nba-stats/tree/main/win-prob)
+### <a href="https://github.com/dcorby/nba-stats/tree/main/win-prob">Win Prob</a>
 ![alt text](https://github.com/dcorby/nba-stats/blob/main/nba-stats-win-prob.png?raw=true)
 
-#[RAPM](https://github.com/dcorby/nba-stats/tree/main/rapm)
+### <a href="https://github.com/dcorby/nba-stats/tree/main/rapm">RAPM</a>
