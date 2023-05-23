@@ -3,12 +3,28 @@
 <head>
   <meta charset="utf-8">
   <script src="https://d3js.org/d3.v6.js"></script>
+  <style>
+  * {
+    font-family: arial, sans-serif;
+  }
+  </style>
 </head>
 
 <body>
   <div id="chart"></div>
+  <div id="controls" style="width:860px;display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(6,1fr);padding-left:30px;margin-top:20px;"></div>
 
 <script>
+const teams = {
+  celtics:   "#007a33", mavericks: "#00538c",    rockets: "#ce1141", pelicans: "#85714d",  warriors: "#1d428a",
+  raptors:   "#ce1141", nuggets: "#8b2131",      jazz: "#00471b",    kings: "#5a2d81",     lakers: "#552583",
+  sixers :   "#006bb6", timberwolves: "#236192", hornets: "#00788c", bulls: "#ce1141",     knicks: "#f58426",
+  wizards:   "#e31837", thunder: "#007ac1",      hawks: "#c1d32f",   pacers: "#fdbb30",    nets: "#000000",
+  heat   :   "#f9a01b", suns: "#e56020",         magic: "#0077c0",   bucks: "#00471b",     clippers: "#1d428a",
+  cavaliers: "#860038", pistons: "#1d42ba",      spurs: "#c4ced4",   grizzlies: "#5d76a9", blazers: "#e03a3e"
+};
+const defaults = ["celtics", "sixers", "nuggets", "lakers", "heat", "knicks"];
+
 const margin = { top: 10, right: 30, bottom: 30, left: 60 };
 const width = 860 - margin.left - margin.right;
 const height = 680 - margin.top - margin.bottom;
@@ -20,6 +36,18 @@ const svg = d3.select("#chart")
               .append("g")
               .attr("transform", `translate(${margin.left},${margin.top})`);
 
+const tooltip = d3.select("#chart")
+                  .append("span")
+                  .style("position", "absolute")
+                  .style("z-index", "10")
+                  .style("visibility", "hidden")
+                  .style("background", "#eeeeee")
+                  .style("border", "1px solid #000000")
+                  .style("font-size", "16px")
+                  .style("padding", "8px 16px") 
+                  .text("");
+
+const lines = {};
 d3.json("/data/2022-23.json")
 .then(
   function(data) {
@@ -30,38 +58,80 @@ d3.json("/data/2022-23.json")
 })
 .then(
   function(data) {
-    console.log(data);
     // Add x axis
     const x = d3.scaleTime()
                 .domain(d3.extent(data.dates, function(d) { return d; }))
                 .range([ 0, width ]);
     svg.append("g")
        .attr("transform", `translate(0, ${height})`)
+       .style("font-size", "14px")
        .call(d3.axisBottom(x));
 
     // Add y axis
     const y = d3.scaleLinear()
-                .domain([-15, 15])
-                //.domain(d3.extent(data, function(d) { return d.dateRep; }))
-                //.domain([0, d3.max(d, function(d) { return +d; })])
+                .domain([-12, 12])
                 .range([ height, 0 ]);
     svg.append("g")
+       .style("font-size", "14px")
        .call(d3.axisLeft(y));
 
     // Add the lines
     for (const team in data.teams) {
-      console.log(data.teams[team]);
-      svg.append("path")
+      const path = svg.append("path");
+      path
          .datum(data.teams[team])
+         .attr("data-team", team)
          .attr("fill", "none")
-         .attr("stroke", "steelblue")
+         .attr("stroke", teams[team])
          .attr("stroke-width", 2.0)
+         .style("opacity", (defaults.includes(team)) ? "1.0" : "0.0")
          .attr("d", d3.line()
            .x(function(d,i) { return x(data.dates[i]) })
            .y(function(d,i) { return y(d) })
-         );
+         )
+         .on("mouseover", function(e, d) {
+            if (this.style.opacity == 0) {
+              return false;
+            }
+            tooltip.text(this.dataset.team);
+            return tooltip.style("visibility", "visible");
+         })
+         .on("mousemove", function(e, d) {
+            return tooltip.style("top", (e.pageY - 10) + "px")
+                          .style("left", (e.pageX + 10) + "px");
+         })
+         .on("mouseout", function(e, d) {
+            return tooltip.style("visibility", "hidden"); 
+         });
+      lines[team] = path;
     }
 });
+
+const controls = document.querySelector("div#controls");
+for (const team in teams) {
+    const div = document.createElement("div");
+    div.classList.add("team");
+    const label = document.createElement("label")
+    label.innerText = team;
+    const check = document.createElement("input");
+    check.type = "checkbox";
+    check.name = team;
+    check.setAttribute("data-team", team); 
+    check.classList.add("check");
+    check.checked = (defaults.includes(team));
+    div.append(check);
+    div.append(label);
+    controls.append(div);
+    check.addEventListener("change", function() {
+      const name = this.dataset.team;
+      const line = lines[name];
+      if (line.style("opacity") == 1) {
+        line.style("opacity", "0.0");
+      } else {
+        line.style("opacity", "1.0");
+      }
+    });
+}
 </script>
 </body>
 </html>
